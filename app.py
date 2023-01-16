@@ -1,6 +1,6 @@
 from vending_machine import VendingMachine
 from product import Product
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 import sqlite3
 import os
 
@@ -16,6 +16,28 @@ app.secret_key = 'use-more-complex-secret-key-please'
 def index():
     vending_machines = get_vending_machines()
     return render_template('index.html', vending_machines = vending_machines)
+
+
+@app.route("/add")
+def add():
+    return render_template('add.html')
+
+
+@app.route("/api/vending_machine/add", methods = ["POST"])
+def add_vending_machine():
+    added_vending_machine = {}
+    with sqlite3.connect('database/vending_machine.db') as connection:
+        keys = ['name', 'location']
+        added_vending_machine = { key : request.form[key] for key in keys }
+        cursor = connection.cursor()
+        cursor.execute('''
+            INSERT INTO vending_machines VALUES (
+                ?, ?, ?
+            )
+        ''', tuple([None]) + tuple(added_vending_machine.values()))
+        connection.commit()
+        added_vending_machine |= { 'id' : cursor.lastrowid }
+    return jsonify(added_vending_machine)
 
 
 def get_vending_machines():
