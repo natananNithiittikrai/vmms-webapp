@@ -18,26 +18,55 @@ def index():
     return render_template('index.html', vending_machines = vending_machines)
 
 
-@app.route("/add")
-def add():
+@app.route("/vending_machines/add")
+def add_vending_machine():
     return render_template('add.html')
 
 
-@app.route("/api/vending_machine/add", methods = ["POST"])
-def add_vending_machine():
-    added_vending_machine = {}
-    with sqlite3.connect('database/vending_machine.db') as connection:
-        keys = ['name', 'location']
-        added_vending_machine = { key : request.form[key] for key in keys }
-        cursor = connection.cursor()
-        cursor.execute('''
-            INSERT INTO vending_machines VALUES (
-                ?, ?, ?
-            )
-        ''', tuple([None]) + tuple(added_vending_machine.values()))
-        connection.commit()
-        added_vending_machine |= { 'id' : cursor.lastrowid }
-    return jsonify(added_vending_machine)
+@app.route("/api/vending_machines/delete/<vm_id>", methods = ["POST"])
+def delete_vending_machine(vm_id):
+    response = {}
+    try:
+        with sqlite3.connect('database/vending_machine.db') as connection:
+            cursor = connection.cursor()
+            cursor.execute(f'''
+                DELETE FROM vending_machines WHERE id = {vm_id}
+            ''')
+            connection.commit()
+            response['status'] = 'success'
+            response['data'] = None
+            response['message'] = f'vending machine {vm_id} is successfully deleted'
+    except Exception as e:
+        response['status'] = 'error'
+        response['data'] = None
+        response['message'] = f'unable to delete vending machine {vm_id}: {str(e)}'
+    return jsonify(response)
+
+
+@app.route("/api/vending_machines/add", methods = ["POST"])
+def api_add_vending_machine():
+    response = {}
+    try:
+        with sqlite3.connect('database/vending_machine.db') as connection:
+            keys = ['name', 'location']
+            added_vending_machine = { key : request.form[key] for key in keys }
+            cursor = connection.cursor()
+            cursor.execute('''
+                INSERT INTO vending_machines VALUES (
+                    ?, ?, ?
+                )
+            ''', tuple([None]) + tuple(added_vending_machine.values()))
+            connection.commit()
+            response['status'] = 'success'
+            response['data'] = {
+                'post' : { 'id' : cursor.lastrowid } | added_vending_machine
+            }
+            response['message'] = f'vending machine {cursor.lastrowid} is successfully added'
+    except Exception as e:
+        response['status'] = 'error'
+        response['data'] = { 'post' : {} }
+        response['message'] = f'unable to add new vending machine: {str(e)}'
+    return jsonify(response)
 
 
 def get_vending_machines():
