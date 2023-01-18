@@ -23,8 +23,42 @@ def add_vending_machine():
     return render_template('add.html')
 
 
+@app.route("/vending_machines/update/<vm_id>")
+def update_vending_machine(vm_id):
+    vending_machine = get_vending_machine_by_id(vm_id)
+    return render_template('update.html', vending_machine = vending_machine)
+
+
+@app.route("/api/vending_machines/update/<vm_id>", methods = ["POST"])
+def api_update_vending_machine(vm_id):
+    response = {}
+    try:
+        with sqlite3.connect('database/vending_machine.db') as connection:
+            keys = ['name', 'location']
+            updated_vending_machine = { key : request.form[key] for key in keys }
+            cursor = connection.cursor()
+            cursor.execute('''
+                    UPDATE vending_machines
+                    SET name = ?,
+                        location = ?
+                    WHERE
+                        id = ?
+                ''', tuple(updated_vending_machine.values()) + tuple([vm_id]))
+            connection.commit()
+            response['status'] = 'success'
+            response['data'] = {
+                'post': {'id': vm_id} | updated_vending_machine
+            }
+            response['message'] = f'vending machine {vm_id} is successfully updated'
+    except Exception as e:
+        response['status'] = 'error'
+        response['data'] = {'post': {}}
+        response['message'] = f'unable to update vending machine {vm_id}: {str(e)}'
+    return jsonify(response)
+
+
 @app.route("/api/vending_machines/delete/<vm_id>", methods = ["POST"])
-def delete_vending_machine(vm_id):
+def api_delete_vending_machine(vm_id):
     response = {}
     try:
         with sqlite3.connect('database/vending_machine.db') as connection:
@@ -67,6 +101,17 @@ def api_add_vending_machine():
         response['data'] = { 'post' : {} }
         response['message'] = f'unable to add new vending machine: {str(e)}'
     return jsonify(response)
+
+
+def get_vending_machine_by_id(vm_id):
+    with sqlite3.connect('database/vending_machine.db') as connection:
+        cursor = connection.cursor()
+        cursor.execute(f'''
+            SELECT * FROM vending_machines WHERE id = {vm_id} 
+        ''')
+        result = cursor.fetchone()
+        vm_id, name, location = result
+        return VendingMachine(vm_id, name, location, get_stocks(vm_id))
 
 
 def get_vending_machines():

@@ -41,11 +41,14 @@
                          <td>{{ vm.id }}</td>
                          <td>{{ vm.name }}</td>
                          <td>{{ vm.location }}</td>
-                         <td data-bs-toggle = "modal" data-bs-target = "#delete-modal-{{vm.id}}">
-                             <button class = "btn btn-danger btn-sm" href = "/api/vending_machines/delete/{{vm.id}}">
-                                 <i class = "fa-solid fa-trash fa-xs"></i>
+                         <td>
+                             <a class = "btn btn-warning btn-sm" type = "button" href = "/vending_machines/update/{{vm.id}}">
+                                 <i class = "fa-solid fa-pencil fa-xs fa-fw"></i>
+                             </a>
+                             <button class = "btn btn-danger btn-sm" data-bs-toggle = "modal" data-bs-target = "#delete-modal-{{vm.id}}">
+                                 <i class = "fa-solid fa-trash fa-xs fa-fw"></i>
                              </button>
-                            <div class="modal fade" id="delete-modal-{{vm.id}}" tabindex="-1" aria-labelledby="delete-modal-{{vm.id}}-label" aria-hidden="true">
+                             <div class="modal fade" id="delete-modal-{{vm.id}}" tabindex="-1" aria-labelledby="delete-modal-{{vm.id}}-label" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content bg-dark">
                                         <div class="modal-header">
@@ -65,7 +68,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                             </div>
                          </td>
                      </tr>
                      <tr>
