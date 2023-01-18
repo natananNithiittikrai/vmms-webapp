@@ -15,7 +15,17 @@ app.secret_key = 'use-more-complex-secret-key-please'
 @app.route("/")
 def index():
     vending_machines = get_vending_machines()
-    return render_template('index.html', vending_machines = vending_machines)
+    product_choices = get_product_choices()
+    vending_machines_product_choices = []
+    for vending_machine in vending_machines:
+        choices = filter(
+            lambda choice : choice.id not in map(lambda product : product.id, vending_machine.products.keys()),
+            product_choices
+        )
+        vending_machines_product_choices.append(
+            (vending_machine, list(choices))
+        )
+    return render_template('index.html', vending_machines = vending_machines_product_choices)
 
 
 @app.route("/vending_machines/add")
@@ -27,6 +37,32 @@ def add_vending_machine():
 def update_vending_machine(vm_id):
     vending_machine = get_vending_machine_by_id(vm_id)
     return render_template('update.html', vending_machine = vending_machine)
+
+
+@app.route("/api/product_stocks/add/<vm_id>", methods = ["POST"])
+def api_add_product_stock(vm_id):
+    response = {}
+    try:
+        with sqlite3.connect('database/vending_machine.db') as connection:
+            keys = ['prod_id', 'stock']
+            added_product_stock = { key: request.form[key] for key in keys }
+            cursor = connection.cursor()
+            cursor.execute('''
+                    INSERT INTO stocks VALUES (
+                        ?, ?, ?
+                    )
+                ''', tuple([vm_id]) + tuple(added_product_stock.values()))
+            connection.commit()
+            response['status'] = 'success'
+            response['data'] = {
+                'post': {'vm_id': vm_id} | added_product_stock
+            }
+            response['message'] = f'new product stock is successfully added'
+    except Exception as e:
+        response['status'] = 'error'
+        response['data'] = {'post': {}}
+        response['message'] = f'unable to add new product stock: {str(e)}'
+    return jsonify(response)
 
 
 @app.route("/api/vending_machines/update/<vm_id>", methods = ["POST"])
@@ -145,6 +181,19 @@ def get_stocks(vm_id):
             stocks[Product(prod_id, name, price)] = stock
         return stocks
 
+
+def get_product_choices():
+    product_choices = []
+    with sqlite3.connect('database/vending_machine.db') as connection:
+        cursor = connection.cursor()
+        results = cursor.execute('''
+                SELECT * FROM products
+            ''')
+        for result in results.fetchall():
+            prod_id, name, price = result
+            product = Product(prod_id, name, price)
+            product_choices.append(product)
+        return product_choices
 
 '''
 initialize database by creating the .db file and necessary tables if they do not exist
