@@ -39,6 +39,32 @@ def update_vending_machine(vm_id):
     return render_template('update.html', vending_machine = vending_machine)
 
 
+@app.route("/api/product_stocks/update/<vm_id>/<prod_id>", methods = ["POST"])
+def api_update_product_stock(vm_id, prod_id):
+    response = {}
+    try:
+        with sqlite3.connect('database/vending_machine.db') as connection:
+            keys = ['stock']
+            updated_vending_machine = { key: request.form[key] for key in keys }
+            cursor = connection.cursor()
+            cursor.execute('''
+                        UPDATE stocks
+                        SET stock = ?
+                        WHERE
+                            vm_id = ? AND prod_id = ? 
+                    ''', (updated_vending_machine['stock'], vm_id, prod_id))
+            connection.commit()
+            response['status'] = 'success'
+            response['data'] = {
+                'post': {'vm_id': vm_id, 'prod_id' : prod_id } | updated_vending_machine
+            }
+            response['message'] = f'product {prod_id} is successfully updated in vending machine {vm_id}'
+    except Exception as e:
+        response['status'] = 'error'
+        response['data'] = {'post': {}}
+        response['message'] = f'unable to update product {prod_id} in vending machine {vm_id}: {str(e)}'
+    return jsonify(response)
+
 @app.route("/api/product_stocks/delete/<vm_id>/<prod_id>", methods = ["POST"])
 def api_delete_product_stock(vm_id, prod_id):
     response = {}
