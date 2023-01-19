@@ -31,37 +31,37 @@
                      </tr>
                    </thead>
                    <tbody>
-                     {% for vm, product_choices in vending_machines %}
+                     {% for vm, product_choices, stocks in data %}
                      <tr>
                          <td>
-                             <button class = "btn btn-dark btn-sm" data-bs-toggle = "collapse" data-bs-target = "#{{vm.name}}" class = "accordion-toggle">
+                             <button class = "btn btn-dark btn-sm" data-bs-toggle = "collapse" data-bs-target = "#{{vm.vm_id}}" class = "accordion-toggle">
                                  <i class = "fa-solid fa-eye fa-xs"></i>
                              </button>
                          </td>
-                         <td>{{ vm.id }}</td>
+                         <td>{{ vm.vm_id }}</td>
                          <td>{{ vm.name }}</td>
                          <td>{{ vm.location }}</td>
                          <td>
-                             <a class = "btn btn-warning btn-sm" type = "button" href = "/vending_machines/update/{{vm.id}}">
+                             <a class = "btn btn-warning btn-sm" type = "button" href = "/vending_machines/update/{{vm.vm_id}}">
                                  <i class = "fa-solid fa-pencil fa-xs fa-fw"></i>
                              </a>
-                             <button class = "btn btn-danger btn-sm" data-bs-toggle = "modal" data-bs-target = "#delete-modal-{{vm.id}}">
+                             <button class = "btn btn-danger btn-sm" data-bs-toggle = "modal" data-bs-target = "#delete-modal-{{vm.vm_id}}">
                                  <i class = "fa-solid fa-trash fa-xs fa-fw"></i>
                              </button>
-                             <div class="modal fade" id="delete-modal-{{vm.id}}" tabindex="-1" aria-labelledby="delete-modal-{{vm.id}}-label" aria-hidden="true">
+                             <div class="modal fade" id="delete-modal-{{vm.vm_id}}" tabindex="-1" aria-labelledby="delete-modal-{{vm.vm_id}}-label" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content bg-dark">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="delete-modal-{{vm.id}}-label">Confirm deleting user</h5>
+                                            <h5 class="modal-title" id="delete-modal-{{vm.vm_id}}-label">Confirm deleting user</h5>
                                             <button type="button" class = "btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
                                             </button>
                                         </div>
                                         <div class="modal-body">
-                                            Do you want to delete vending machine <b>{{vm.id}}</b> <b>({{vm.name}})</b>?
+                                            Do you want to delete vending machine <b>{{vm.vm_id}}</b> <b>({{vm.name}})</b>?
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <form action="/api/vending_machines/delete/{{vm.id}}" method="post">
+                                            <form action="/api/vending_machines/delete/{{vm.vm_id}}" method="post">
                                                 <button class = "btn btn-danger" type="submit">
                                                     <i class = "fa fa-trash"></i> &nbsp; Delete
                                                 </button>
@@ -74,16 +74,16 @@
                      </tr>
                      <tr>
                         <td class = "p-0" colspan = "12">
-                           <div class = "accordian-body collapse" id = "{{vm.name}}">
+                           <div class = "accordian-body collapse" id = "{{vm.vm_id}}">
                                {% if product_choices|length != 0 %}
                                <div class = "col-12" align = "right">
-                                    <button class = "btn btn-success btn-sm rounded-3 my-3" style = "--bs-btn-font-size: .75rem;" data-bs-toggle = "collapse" data-bs-target = "#{{vm.name}}-add-product-form" class = "accordion-toggle">
+                                    <button class = "btn btn-success btn-sm rounded-3 my-3" style = "--bs-btn-font-size: .75rem;" data-bs-toggle = "collapse" data-bs-target = "#{{vm.vm_id}}-add-product-form" class = "accordion-toggle">
                                         <i class = "fa-solid fa-plus fa-xs"></i> &nbsp; New Product
                                     </button>
                                </div>
                                <div class = "row">
-                                   <div class = "accordian-body collapse" id = "{{vm.name}}-add-product-form">
-                                       <form action = "/api/product_stocks/add/{{vm.id}}" method = "post">
+                                   <div class = "accordian-body collapse" id = "{{vm.vm_id}}-add-product-form">
+                                       <form action = "/api/product_stocks/add/{{vm.vm_id}}" method = "post">
                                            <div class = "row p-3">
                                                <div class = "container bg-dark border border-dark-subtle rounded-3 pb-3">
                                                    <div class="row">
@@ -100,7 +100,7 @@
                                                        <div class = "col-6">
                                                            <select name = "prod_id" class = "form-select form-select-sm btn btn-outline-secondary btn-sm text-light rounded-3 p-1 px-2" style="text-align: left !important;" aria-label="product-choices">
                                                                {% for choice in product_choices %}
-                                                                    <option value = "{{ choice.id }}"> {{ choice.name }} </option>
+                                                                    <option value = "{{ choice.prod_id }}"> {{ choice.name }} </option>
                                                                {% endfor %}
                                                            </select>
                                                        </div>
@@ -131,26 +131,26 @@
                                     </tr>
                                  </thead>
                                  <tbody>
-                                    {% for product, stock in vm.products.items() %}
+                                    {% for product, stock in stocks.items() %}
                                     <tr>
                                         <td class="col-1">
-                                            <button class = "btn btn-danger btn-sm" data-bs-toggle = "modal" data-bs-target = "#delete-modal-{{vm.id}}-{{product.id}}">
+                                            <button class = "btn btn-danger btn-sm" data-bs-toggle = "modal" data-bs-target = "#delete-modal-{{vm.vm_id}}-{{product.prod_id}}">
                                                 <i class="fa-solid fa-minus fa-sm fa-fw"></i>
                                             </button>
-                                            <div class="modal fade" id="delete-modal-{{vm.id}}-{{product.id}}" tabindex="-1" aria-labelledby="delete-modal-{{vm.id}}-{{product.id}}-label" aria-hidden="true">
+                                            <div class="modal fade" id="delete-modal-{{vm.vm_id}}-{{product.prod_id}}" tabindex="-1" aria-labelledby="delete-modal-{{vm.vm_id}}-{{product.prod_id}}-label" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content bg-dark">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="delete-modal-{{vm.id}}-{{product.id}}-label">Confirm deleting user</h5>
+                                                            <h5 class="modal-title" id="delete-modal-{{vm.vm_id}}-{{product.prod_id}}-label">Confirm deleting user</h5>
                                                             <button type="button" class = "btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
                                                             </button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            Do you want to delete product <b>{{product.id}}</b> <b>({{product.name}})</b>?
+                                                            Do you want to delete product <b>{{product.prod_id}}</b> <b>({{product.name}})</b>?
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            <form action="/api/product_stocks/delete/{{vm.id}}/{{product.id}}" method="post">
+                                                            <form action="/api/product_stocks/delete/{{vm.vm_id}}/{{product.prod_id}}" method="post">
                                                                 <button class = "btn btn-danger" type="submit">
                                                                     <i class = "fa fa-trash"></i> &nbsp; Delete
                                                                 </button>
@@ -160,25 +160,25 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>{{ product.id }}</td>
+                                        <td>{{ product.prod_id }}</td>
                                         <td>{{ product.name }}</td>
                                         <td>{{ product.price }}</td>
                                         <td>{{ stock }}</td>
                                         <td>
-                                            <button class = "btn btn-warning btn-sm" data-bs-toggle = "modal" data-bs-target = "#product-update-modal-{{vm.id}}-{{product.id}}">
+                                            <button class = "btn btn-warning btn-sm" data-bs-toggle = "modal" data-bs-target = "#product-update-modal-{{vm.vm_id}}-{{product.prod_id}}">
                                                 <i class = "fa-solid fa-pen-to-square fa-xs fa-fw"></i>
                                             </button>
-                                            <div class="modal fade" id="product-update-modal-{{vm.id}}-{{product.id}}" tabindex="-1" aria-labelledby="product-update-modal-{{vm.id}}-{{product.id}}-label" aria-hidden="true">
+                                            <div class="modal fade" id="product-update-modal-{{vm.vm_id}}-{{product.prod_id}}" tabindex="-1" aria-labelledby="product-update-modal-{{vm.vm_id}}-{{product.prod_id}}-label" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content bg-dark">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="product-update-modal-{{vm.id}}-{{product.id}}-label">Update Product {{product.id}} ({{product.name}})</h5>
+                                                            <h5 class="modal-title" id="product-update-modal-{{vm.vm_id}}-{{product.prod_id}}-label">Update Product {{product.prod_id}} ({{product.name}})</h5>
                                                             <button type="button" class = "btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
                                                             </button>
                                                         </div>
-                                                        <form action = "/api/product_stocks/update/{{vm.id}}/{{product.id}}" method = "post">
+                                                        <form action = "/api/product_stocks/update/{{vm.vm_id}}/{{product.prod_id}}" method = "post">
                                                             <div class="modal-body">
-                                                                In Vending Machine <b>{{vm.id}}</b> <b>({{vm.name}})</b>
+                                                                In Vending Machine <b>{{vm.vm_id}}</b> <b>({{vm.name}})</b>
                                                                 <div class="row p-3 pt-4">
                                                                     <div class="col-4">
                                                                         New Stock:
