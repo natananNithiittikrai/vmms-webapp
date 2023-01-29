@@ -1,158 +1,283 @@
+from __future__ import annotations
+from flask import Request
 from models.vending_machine import VendingMachine
 from models.product import Product
 from models.stock import Stock
-import sqlite3
+from sqlalchemy.exc import IntegrityError
+from typing import TYPE_CHECKING
+import os
 
-DATABASE_PATH = 'database/vending_machine.db'
+if TYPE_CHECKING:
+    from database.database_service import DatabaseService
 
-SELECT_ALL_DATA_SQL = '''
-    SELECT s.vm_id, s.prod_id, p.name, p.price, s.stock FROM stocks AS s
-    LEFT JOIN vending_machines AS v
-        ON s.vm_id = v.id
-    LEFT JOIN products AS p
-        ON s.prod_id = p.id         
-'''
+DATABASE_PATH = f"sqlite:///{str(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vending_machine.db'))}"
 
 
-"""
-return an SQL statement for selecting all from a specified table
+def populate_products(database_service: DatabaseService) -> None:
+    """Populates database with predefined products
 
-args:
-    table (str): a table name
-
-returns:
-    str: an SQL select all statement for a specified table
-"""
-def select_all_from(table):
-    return f'SELECT * FROM {table}'
-
-
-"""
-create a database connection to the SQLite database
-
-returns:
-    Connection object or None
-"""
-def get_connection():
-    connection = None
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+    """
     try:
-        connection = sqlite3.connect(DATABASE_PATH)
-    except Exception as e:
-        print(e)
-    return connection
-
-
-"""
-populate data in products table
-"""
-def populate_products():
-    products = [
-        (1, 'taro', 20.0),
-        (2, 'pringle', 30.0),
-        (3, 'lay', 50.0)
-    ]
-    try:
-        with get_connection() as connection:
-            cursor = connection.cursor()
-            cursor.executemany('''
-                INSERT INTO products VALUES (
-                    ?, ?, ?
-                )
-            ''', products)
-            connection.commit()
-    except Exception as e:
+        with database_service.get_session().begin() as session:
+            products = [
+                Product(id=1, name='taro', price=20.0),
+                Product(id=2, name='pringle', price=30.0),
+                Product(id=3, name='lay\'s', price=50.0)
+            ]
+            session.add_all(products)
+    except IntegrityError:
         pass
+    except Exception as e:
+        print('populate_products:', e)
 
 
-"""
-return a list of vending machines in vending_machines table
+def get_vending_machines(database_service: DatabaseService) -> list[VendingMachine]:
+    """Gets all vending machines in vending_machines table
 
-returns:
-    list: a list of VendingMachine objects
-"""
-def get_vending_machines():
-    vending_machines = []
-    with get_connection() as connection:
-        cursor = connection.cursor()
-        results = cursor.execute(select_all_from('vending_machines'))
-        for result in results:
-            vm_id, name, location = result
-            vending_machine = VendingMachine(vm_id, name, location)
-            vending_machines.append(vending_machine)
-    return vending_machines
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+
+    Returns:
+         list: A list of all vending machines in vending_machines table
+    """
+    session = database_service.get_session()()
+    return session.query(VendingMachine).all()
 
 
-"""
-return a list of products in products table
+def get_product_choices(database_service: DatabaseService) -> list[Product]:
+    """Gets all products in products table
 
-returns:
-    list: a list of Product objects 
-"""
-def get_product_choices():
-    product_choices = []
-    with get_connection() as connection:
-        cursor = connection.cursor()
-        results = cursor.execute(select_all_from('products'))
-        for result in results.fetchall():
-            prod_id, name, price = result
-            product = Product(prod_id, name, price)
-            product_choices.append(product)
-    return product_choices
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+
+    Returns:
+        list: A list of all products in products table
+    """
+    session = database_service.get_session()()
+    return session.query(Product).all()
 
 
-"""
-return a dictionary mapping each product in the vending machine to the number of remaining stock
+def get_vending_machine_by_id(database_service: DatabaseService, vm_id: int) -> VendingMachine:
+    """Gets a vending machine with the specified id of vm_id
 
-args:
-    vm_id (int): an id of vending machine
-    
-returns:
-    dict: a dictionary of Product to number of stock in int
-"""
-def get_stocks_by_vm_id(vm_id):
-    stocks = {}
-    with get_connection() as connection:
-        cursor = connection.cursor()
-        results = cursor.execute(SELECT_ALL_DATA_SQL + f'WHERE s.vm_id = {vm_id}')
-        for result in results.fetchall():
-            _, prod_id, name, price, stock = result
-            stocks[Product(prod_id, name, price)] = stock
-    return stocks
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+        vm_id (int): An id of the interested vending machine
+
+    Returns:
+        VendingMachine: A vending machine with the specified id of vm_id
+    """
+    session = database_service.get_session()()
+    return session.query(VendingMachine).filter(VendingMachine.id == vm_id).first()
 
 
-"""
-return a list of products that the specified vending machine does not currently have
+def get_product_choices_by_vm_id(database_service: DatabaseService, vm_id: int) -> list[Product]:
+    """Gets products that can be added to a vending machine of the specified id of vm_id
 
-args: 
-    vm_id (int): an id of vending machine
-    
-returns:
-    list: a list of Product that are not in the specified vending machine
-"""
-def get_product_choices_by_vm_id(vm_id):
-    all_product_choices = get_product_choices()
-    current_products = get_stocks_by_vm_id(vm_id).keys()
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+        vm_id (int): An id of the interested vending machine
+
+    Returns:
+        list: A list of products that can be added to the vending machine vm_id
+    """
+    all_product_choices = get_product_choices(database_service)
+    current_products = get_stocks_by_vm_id(database_service, vm_id).keys()
+    current_products_ids = list(map(lambda product: product.id, current_products))
     return list(filter(
-        lambda choice : choice.prod_id not in map(lambda product : product.prod_id, current_products),
+        lambda product_choice: product_choice.id not in current_products_ids,
         all_product_choices
     ))
 
 
-"""
-return a vending machine with the specified vm_id
+def get_stocks_by_vm_id(database_service: DatabaseService, vm_id: int) -> dict[Product, int]:
+    """Gets product stocks of a vending machine with the specified id of vm_id
 
-args: 
-    vm_id (int): an id of vending machine
-    
-returns:
-    VendingMachine: a vending machine with the specified vm_id
-"""
-def get_vending_machine_by_id(vm_id):
-    with get_connection() as connection:
-        cursor = connection.cursor()
-        cursor.execute(f'''
-            SELECT * FROM vending_machines WHERE id = {vm_id} 
-        ''')
-        result = cursor.fetchone()
-        vm_id, name, location = result
-        return VendingMachine(vm_id, name, location)
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+        vm_id (int): An id of the interested vending machine
+
+    Returns:
+        dict: A dictionary mapping a product to its stock representing product stocks of the vending machine vm_id
+    """
+    session = database_service.get_session()()
+    results = session.query(
+        Stock.vm_id,
+        Stock.prod_id,
+        Product.name,
+        Product.price,
+        Stock.stock
+    ).join(VendingMachine, VendingMachine.id == Stock.vm_id, isouter=True
+           ).join(Product, Product.id == Stock.prod_id, isouter=True
+                  ).filter(Stock.vm_id == vm_id).all()
+    stocks = {}
+    for result in results:
+        _, prod_id, name, price, stock = result
+        stocks[Product(prod_id, name, price)] = stock
+    return stocks
+
+
+def create_vending_machine_from_request(request: Request) -> VendingMachine:
+    """Creates a vending machine from request
+
+    Args:
+        request (Request): A request that from the client
+
+    Returns:
+        VendingMachine: A vending machine with the specified values of attributes
+    """
+    return VendingMachine(request.form['name'], request.form['location'])
+
+
+def add_vending_machine(database_service: DatabaseService, vending_machine: VendingMachine) -> dict:
+    """Adds a vending machine to vending_machine table
+
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+        vending_machine (VendingMachine): A vending machine that needs to be added to the table
+
+    Returns:
+        dict: A dictionary representing the response
+    """
+    session = database_service.get_session()()
+    session.add(vending_machine)
+    session.commit()
+    return {
+        'status': 'success',
+        'data': {
+            'post': {'id': vending_machine.id} | vending_machine.to_dict()
+        },
+        'message': f'vending machine {vending_machine.id} is successfully added'
+    }
+
+
+def update_vending_machine(database_service: DatabaseService, new_vending_machine: VendingMachine, vm_id: int) -> dict:
+    """Updates attributes of a vending machine with the specified id of vm_id
+
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+        new_vending_machine (VendingMachine): A vending machine with the desired values of attributes
+        vm_id (int): An id of the interested vending machine
+
+    Returns:
+        dict: A dictionary representing the response
+    """
+    session = database_service.get_session()()
+    vending_machine = session.query(VendingMachine).filter(VendingMachine.id == vm_id).first()
+    vending_machine.name = new_vending_machine.name
+    vending_machine.location = new_vending_machine.location
+    session.commit()
+    return {
+        'status': 'success',
+        'data': {
+            'post': {'id': vending_machine.id} | vending_machine.to_dict()
+        },
+        'message': f'vending machine {vending_machine.id} is successfully updated'
+    }
+
+
+def delete_vending_machine(database_service: DatabaseService, vm_id: int) -> dict:
+    """Deletes a vending machine with the specified id of vm_id
+
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+        vm_id (int): An id of the interested vending machine
+
+    Returns:
+        dict: A dictionary representing the response
+    """
+    session = database_service.get_session()()
+    vending_machine = session.query(VendingMachine).filter(VendingMachine.id == vm_id).first()
+    session.delete(vending_machine)
+    session.query(Stock).filter(Stock.vm_id == vending_machine.id).delete()
+    session.commit()
+    return {
+        'status': 'success',
+        'data': None,
+        'message': f'vending machine {vending_machine.id} is successfully deleted'
+    }
+
+
+def create_product_stock_from_request(request: Request, vm_id: int, prod_id: int = None) -> Stock:
+    """Creates a product stock of a vending machine with the specified id of vm_id from request
+
+    Args:
+        request (Request): A request that from the client
+        vm_id (int): An id of the interested vending machine
+        prod_id (int): An id of the interested product
+            (default is None)
+    Returns:
+        Stock: A product stock of the vending machine vm_id
+    """
+    if not prod_id:
+        prod_id = request.form['prod_id']
+    return Stock(vm_id, prod_id, request.form['stock'])
+
+
+def add_product_stock(database_service: DatabaseService, product_stock: Stock) -> dict:
+    """Adds a product stock to stocks table
+
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+        product_stock (Stock): A product stock that needs to be added to the table
+
+    Returns:
+        dict: A dictionary representing the response
+    """
+    session = database_service.get_session()()
+    session.add(product_stock)
+    session.commit()
+    return {
+        'status': 'success',
+        'data': {
+            'post': product_stock.to_dict()
+        },
+        'message': f'new product stock is successfully added to vending machine {product_stock.vm_id}'
+    }
+
+
+def update_product_stock(database_service: DatabaseService, new_product_stock: Stock) -> dict:
+    """Updates attributes of a vending machine with the specified id of vm_id
+
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+        new_product_stock (Stock): A product stock with the desired values of attributes
+
+    Returns:
+        dict: A dictionary representing the response
+    """
+    session = database_service.get_session()()
+    product_stock = session.query(Stock).filter(Stock.vm_id == new_product_stock.vm_id).first()
+    product_stock.stock = new_product_stock.stock
+    session.commit()
+    return {
+        'status': 'success',
+        'data': {
+            'post': product_stock.to_dict()
+        },
+        'message': f'product {product_stock.prod_id} stock is successfully updated in vending machine {product_stock.vm_id}'
+    }
+
+
+def delete_product_stock(database_service: DatabaseService, vm_id: int, prod_id: int) -> dict:
+    """Deletes a product stock with the specified vm_id and prod_id
+
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+        vm_id (int): An id of the interested vending machine
+        prod_id (int): An id of the interested product
+
+    Returns:
+        dict: A dictionary representing the response
+    """
+    session = database_service.get_session()()
+    product_stock = session.query(Stock).filter(Stock.vm_id == vm_id, Stock.prod_id == prod_id).first()
+    session.delete(product_stock)
+    session.commit()
+    return {
+        'status': 'success',
+        'data': None,
+        'message': f'product {product_stock.prod_id} is successfully deleted from vending machine {product_stock.vm_id}'
+    }

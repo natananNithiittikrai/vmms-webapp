@@ -3,17 +3,30 @@ from models.base import Base
 
 
 class Product(Base):
-
     __tablename__ = 'products'
 
-    id = Column(INTEGER, primary_key = True, autoincrement = True)
+    id = Column(INTEGER, primary_key=True, autoincrement=True)
     name = Column(VARCHAR(50))
-    price = Column(DECIMAL(10, 5))
+    price = Column(DECIMAL(10, 2))
 
-    def __init__(self, prod_id, name, price):
-        self.prod_id = prod_id
+    def __init__(self, id: int, name: int, price: int) -> None:
+        self.id = id
         self.name = name
         self.price = price
 
-    def __repr__(self):
-        return f'<Product {self.name}>'
+    def __repr__(self) -> str:
+        return f'<Product {self.id}: {self.name}>'
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Product):
+            return self.id == other.id
+        return False
+
+    def __hash__(self) -> int:
+        return hash(self.id)
+
+    def to_dict(self) -> dict:
+        return {
+            'name': self.name,
+            'price': self.price
+        }

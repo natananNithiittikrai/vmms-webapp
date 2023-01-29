@@ -1,9 +1,12 @@
 # Vending Machine Management System
+
 MUIC ICCS372 Software Engineering
 
 # Repository Files
+
 ```
 ├── database
+│   ├── database_service.py
 │   ├── utils.py
 │   └── vending_machine.db
 ├── models
@@ -16,12 +19,20 @@ MUIC ICCS372 Software Engineering
 │   ├── base.html
 │   ├── index.html
 │   └── update.html
+├── tests
+│   ├── test_api_add_product_stock.py
+│   ├── test_api_add_vending_machine.py
+│   ├── test_api_delete_product_stock.py
+│   ├── test_api_delete_vending_machine.py
+│   ├── test_api_update_product_stock.py
+│   └── test_api_update_vending_machine.py
 ├── .gitignore
 ├── app.py
 └── checklist.md
 ```
 
 # Project Setup
+
 ```
 Python 3.9.13
    
@@ -32,7 +43,9 @@ Package Requirements
 ```
 
 # Run
+
 Please run app.py to start a webapp running on http://127.0.0.1:5000
+
 ```
 python app.py
 ```
