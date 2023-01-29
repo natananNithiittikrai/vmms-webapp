@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 from database.database_service import DatabaseService
 from database import utils
 
 
-def create_app(database_service):
+def create_app(database_service: DatabaseService) -> Flask:
     app = Flask(__name__)
 
     # SECURITY WARNING:
@@ -13,7 +13,7 @@ def create_app(database_service):
     app.config['SQLALCHEMY_DATABASE_URI'] = database_service.get_uri()
 
     @app.route("/")
-    def index():
+    def index() -> str:
         vending_machines = utils.get_vending_machines(database_service)
         return render_template(
             'index.html',
@@ -28,16 +28,16 @@ def create_app(database_service):
         )
 
     @app.route("/vending_machines/add")
-    def add_vending_machine():
+    def add_vending_machine() -> str:
         return render_template('add.html')
 
-    @app.route("/vending_machines/update/<vm_id>")
-    def update_vending_machine(vm_id):
+    @app.route("/vending_machines/update/<int:vm_id>")
+    def update_vending_machine(vm_id: int) -> str:
         vending_machine = utils.get_vending_machine_by_id(database_service, vm_id)
         return render_template('update.html', vending_machine=vending_machine)
 
     @app.route("/api/vending_machines/add", methods=["POST"])
-    def api_add_vending_machine():
+    def api_add_vending_machine() -> Response:
         try:
             vending_machine = utils.create_vending_machine_from_request(request)
             response = utils.add_vending_machine(database_service, vending_machine)
@@ -50,8 +50,8 @@ def create_app(database_service):
             }
         return jsonify(response)
 
-    @app.route("/api/vending_machines/update/<vm_id>", methods=["POST"])
-    def api_update_vending_machine(vm_id):
+    @app.route("/api/vending_machines/update/<int:vm_id>", methods=["POST"])
+    def api_update_vending_machine(vm_id: int) -> Response:
         try:
             new_vending_machine = utils.create_vending_machine_from_request(request)
             response = utils.update_vending_machine(database_service, new_vending_machine, vm_id)
@@ -64,8 +64,8 @@ def create_app(database_service):
             }
         return jsonify(response)
 
-    @app.route("/api/vending_machines/delete/<vm_id>", methods=["POST"])
-    def api_delete_vending_machine(vm_id):
+    @app.route("/api/vending_machines/delete/<int:vm_id>", methods=["POST"])
+    def api_delete_vending_machine(vm_id: int) -> Response:
         try:
             response = utils.delete_vending_machine(database_service, vm_id)
         except Exception as e:
@@ -77,8 +77,8 @@ def create_app(database_service):
             }
         return jsonify(response)
 
-    @app.route("/api/product_stocks/add/<vm_id>", methods=["POST"])
-    def api_add_product_stock(vm_id):
+    @app.route("/api/product_stocks/add/<int:vm_id>", methods=["POST"])
+    def api_add_product_stock(vm_id: int) -> Response:
         try:
             product_stock = utils.create_product_stock_from_request(request, vm_id)
             response = utils.add_product_stock(database_service, product_stock)
@@ -91,8 +91,8 @@ def create_app(database_service):
             }
         return jsonify(response)
 
-    @app.route("/api/product_stocks/update/<vm_id>/<prod_id>", methods=["POST"])
-    def api_update_product_stock(vm_id, prod_id):
+    @app.route("/api/product_stocks/update/<int:vm_id>/<int:prod_id>", methods=["POST"])
+    def api_update_product_stock(vm_id: int, prod_id: int) -> Response:
         try:
             new_product_stock = utils.create_product_stock_from_request(request, vm_id, prod_id)
             response = utils.update_product_stock(database_service, new_product_stock)
@@ -105,8 +105,8 @@ def create_app(database_service):
             }
         return jsonify(response)
 
-    @app.route("/api/product_stocks/delete/<vm_id>/<prod_id>", methods=["POST"])
-    def api_delete_product_stock(vm_id, prod_id):
+    @app.route("/api/product_stocks/delete/<int:vm_id>/<int:prod_id>", methods=["POST"])
+    def api_delete_product_stock(vm_id: int, prod_id: int) -> Response:
         try:
             response = utils.delete_product_stock(database_service, vm_id, prod_id)
         except Exception as e:

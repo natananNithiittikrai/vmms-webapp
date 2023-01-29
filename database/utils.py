@@ -1,13 +1,19 @@
+from __future__ import annotations
+from flask import Request
 from models.vending_machine import VendingMachine
 from models.product import Product
 from models.stock import Stock
 from sqlalchemy.exc import IntegrityError
+from typing import TYPE_CHECKING
 import os
+
+if TYPE_CHECKING:
+    from database.database_service import DatabaseService
 
 DATABASE_PATH = f"sqlite:///{str(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vending_machine.db'))}"
 
 
-def populate_products(database_service) -> None:
+def populate_products(database_service: DatabaseService) -> None:
     """Populates database with predefined products
 
     Args:
@@ -27,7 +33,7 @@ def populate_products(database_service) -> None:
         print('populate_products:', e)
 
 
-def get_vending_machines(database_service) -> list[VendingMachine]:
+def get_vending_machines(database_service: DatabaseService) -> list[VendingMachine]:
     """Gets all vending machines in vending_machines table
 
     Args:
@@ -40,7 +46,7 @@ def get_vending_machines(database_service) -> list[VendingMachine]:
     return session.query(VendingMachine).all()
 
 
-def get_product_choices(database_service) -> list[Product]:
+def get_product_choices(database_service: DatabaseService) -> list[Product]:
     """Gets all products in products table
 
     Args:
@@ -53,7 +59,7 @@ def get_product_choices(database_service) -> list[Product]:
     return session.query(Product).all()
 
 
-def get_vending_machine_by_id(database_service, vm_id) -> VendingMachine:
+def get_vending_machine_by_id(database_service: DatabaseService, vm_id: int) -> VendingMachine:
     """Gets a vending machine with the specified id of vm_id
 
     Args:
@@ -67,7 +73,7 @@ def get_vending_machine_by_id(database_service, vm_id) -> VendingMachine:
     return session.query(VendingMachine).filter(VendingMachine.id == vm_id).first()
 
 
-def get_product_choices_by_vm_id(database_service, vm_id) -> list[Product]:
+def get_product_choices_by_vm_id(database_service: DatabaseService, vm_id: int) -> list[Product]:
     """Gets products that can be added to a vending machine of the specified id of vm_id
 
     Args:
@@ -86,7 +92,7 @@ def get_product_choices_by_vm_id(database_service, vm_id) -> list[Product]:
     ))
 
 
-def get_stocks_by_vm_id(database_service, vm_id) -> dict[Product, int]:
+def get_stocks_by_vm_id(database_service: DatabaseService, vm_id: int) -> dict[Product, int]:
     """Gets product stocks of a vending machine with the specified id of vm_id
 
     Args:
@@ -113,7 +119,7 @@ def get_stocks_by_vm_id(database_service, vm_id) -> dict[Product, int]:
     return stocks
 
 
-def create_vending_machine_from_request(request) -> VendingMachine:
+def create_vending_machine_from_request(request: Request) -> VendingMachine:
     """Creates a vending machine from request
 
     Args:
@@ -125,7 +131,7 @@ def create_vending_machine_from_request(request) -> VendingMachine:
     return VendingMachine(request.form['name'], request.form['location'])
 
 
-def add_vending_machine(database_service, vending_machine) -> dict:
+def add_vending_machine(database_service: DatabaseService, vending_machine: VendingMachine) -> dict:
     """Adds a vending machine to vending_machine table
 
     Args:
@@ -147,7 +153,7 @@ def add_vending_machine(database_service, vending_machine) -> dict:
     }
 
 
-def update_vending_machine(database_service, new_vending_machine, vm_id) -> dict:
+def update_vending_machine(database_service: DatabaseService, new_vending_machine: VendingMachine, vm_id: int) -> dict:
     """Updates attributes of a vending machine with the specified id of vm_id
 
     Args:
@@ -172,7 +178,7 @@ def update_vending_machine(database_service, new_vending_machine, vm_id) -> dict
     }
 
 
-def delete_vending_machine(database_service, vm_id) -> dict:
+def delete_vending_machine(database_service: DatabaseService, vm_id: int) -> dict:
     """Deletes a vending machine with the specified id of vm_id
 
     Args:
@@ -194,7 +200,7 @@ def delete_vending_machine(database_service, vm_id) -> dict:
     }
 
 
-def create_product_stock_from_request(request, vm_id, prod_id=None) -> Stock:
+def create_product_stock_from_request(request: Request, vm_id: int, prod_id: int = None) -> Stock:
     """Creates a product stock of a vending machine with the specified id of vm_id from request
 
     Args:
@@ -210,7 +216,7 @@ def create_product_stock_from_request(request, vm_id, prod_id=None) -> Stock:
     return Stock(vm_id, prod_id, request.form['stock'])
 
 
-def add_product_stock(database_service, product_stock) -> dict:
+def add_product_stock(database_service: DatabaseService, product_stock: Stock) -> dict:
     """Adds a product stock to stocks table
 
     Args:
@@ -232,7 +238,7 @@ def add_product_stock(database_service, product_stock) -> dict:
     }
 
 
-def update_product_stock(database_service, new_product_stock) -> dict:
+def update_product_stock(database_service: DatabaseService, new_product_stock: Stock) -> dict:
     """Updates attributes of a vending machine with the specified id of vm_id
 
     Args:
@@ -255,7 +261,7 @@ def update_product_stock(database_service, new_product_stock) -> dict:
     }
 
 
-def delete_product_stock(database_service, vm_id, prod_id) -> dict:
+def delete_product_stock(database_service: DatabaseService, vm_id: int, prod_id: int) -> dict:
     """Deletes a product stock with the specified vm_id and prod_id
 
     Args:

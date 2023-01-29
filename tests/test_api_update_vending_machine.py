@@ -13,7 +13,7 @@ class TestAPIUpdateVendingMachine(unittest.TestCase):
         })
         self.client = self.app.test_client()
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         self.client.post("/api/vending_machines/add", data={
             'name': 'test_vm_001',
             'location': 'test_loc_001',
@@ -24,7 +24,7 @@ class TestAPIUpdateVendingMachine(unittest.TestCase):
         })
         assert response.status_code == 200
 
-    def test_response_json(self):
+    def test_response_json(self) -> None:
         self.client.post("/api/vending_machines/add", data={
             'name': 'test_vm_001',
             'location': 'test_loc_001',
@@ -41,7 +41,7 @@ class TestAPIUpdateVendingMachine(unittest.TestCase):
         assert response_json['status'] == 'success'
         assert response_json['message'] == 'vending machine 1 is successfully updated'
 
-    def test_response_json_fail_not_exist(self):
+    def test_response_json_fail_not_exist(self) -> None:
         response = self.client.post("/api/vending_machines/update/1", data={
             'name': 'vm_001',
             'location': 'loc_001',

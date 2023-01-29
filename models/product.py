@@ -9,23 +9,23 @@ class Product(Base):
     name = Column(VARCHAR(50))
     price = Column(DECIMAL(10, 2))
 
-    def __init__(self, id, name, price):
+    def __init__(self, id: int, name: int, price: int) -> None:
         self.id = id
         self.name = name
         self.price = price
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<Product {self.id}: {self.name}>'
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Product):
             return self.id == other.id
         return False
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.id)
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             'name': self.name,
             'price': self.price

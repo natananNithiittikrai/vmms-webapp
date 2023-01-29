@@ -13,14 +13,14 @@ class TestAPIAddVendingMachine(unittest.TestCase):
         })
         self.client = self.app.test_client()
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         response = self.client.post("/api/vending_machines/add", data={
             'name': 'test_vm_001',
             'location': 'test_loc_001',
         })
         assert response.status_code == 200
 
-    def test_response_json(self):
+    def test_response_json(self) -> None:
         response = self.client.post("/api/vending_machines/add", data={
             'name': 'test_vm_001',
             'location': 'test_loc_001',

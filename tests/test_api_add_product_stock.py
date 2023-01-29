@@ -13,7 +13,7 @@ class TestAPIAddProductStock(unittest.TestCase):
         })
         self.client = self.app.test_client()
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         self.client.post("/api/vending_machines/add", data={
             'name': 'test_vm_001',
             'location': 'test_loc_001',
@@ -24,7 +24,7 @@ class TestAPIAddProductStock(unittest.TestCase):
         })
         assert response.status_code == 200
 
-    def test_response_json(self):
+    def test_response_json(self) -> None:
         self.client.post("/api/vending_machines/add", data={
             'name': 'test_vm_001',
             'location': 'test_loc_001',
