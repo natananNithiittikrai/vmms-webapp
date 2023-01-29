@@ -1,7 +1,9 @@
 # Vending Machine Management System
+
 MUIC ICCS372 Software Engineering
 
 # Repository Files
+
 ```
 ├── database
 │   ├── utils.py
@@ -22,6 +24,7 @@ MUIC ICCS372 Software Engineering
 ```
 
 # Project Setup
+
 ```
 Python 3.9.13
    
@@ -32,7 +35,9 @@ Package Requirements
 ```
 
 # Run
+
 Please run app.py to start a webapp running on http://127.0.0.1:5000
+
 ```
 python app.py
 ```
