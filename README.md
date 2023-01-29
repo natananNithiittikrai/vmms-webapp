@@ -6,6 +6,7 @@ MUIC ICCS372 Software Engineering
 
 ```
 ├── database
+│   ├── database_service.py
 │   ├── utils.py
 │   └── vending_machine.db
 ├── models
@@ -18,6 +19,13 @@ MUIC ICCS372 Software Engineering
 │   ├── base.html
 │   ├── index.html
 │   └── update.html
+├── tests
+│   ├── test_api_add_product_stock.py
+│   ├── test_api_add_vending_machine.py
+│   ├── test_api_delete_product_stock.py
+│   ├── test_api_delete_vending_machine.py
+│   ├── test_api_update_product_stock.py
+│   └── test_api_update_vending_machine.py
 ├── .gitignore
 ├── app.py
 └── checklist.md
