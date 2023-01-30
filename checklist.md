@@ -6,13 +6,13 @@ MUIC ICCS372 Software Engineering
 
 Checklist:
 
-- [x] 
+- [x]
     1. Each vending machine can contain multiple products
-- [x] 
+- [x]
     2. Each vending machine has stocks for each of its products
-- [x] 
+- [x]
     3. Can list all vending machine and its product stocks
-- [x] 
+- [x]
     4. Can manage vending machine
   <details>
     <summary>Can add vending machine</summary>
@@ -41,7 +41,7 @@ Checklist:
   ![image](https://user-images.githubusercontent.com/60769071/213505656-2d3674ce-50b2-4a11-b788-b7771e14ed03.png)
 
   </details>
-- [x] 
+- [x]
     5. Can manage product stock in each vending machine
   <details>
     <summary>Can add product stock to a vending machine</summary>

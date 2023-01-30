@@ -35,7 +35,7 @@ MUIC ICCS372 Software Engineering
 
 ```
 Python 3.9.13
-   
+
 Package Requirements
    -  flask
    -  sqlite3
