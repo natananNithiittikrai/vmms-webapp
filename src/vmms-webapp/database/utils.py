@@ -9,11 +9,10 @@ import os
 from typing import TYPE_CHECKING
 
 from flask import Request
-from sqlalchemy.exc import IntegrityError
-
 from models.product import Product
 from models.stock import Stock
 from models.vending_machine import VendingMachine
+from sqlalchemy.exc import IntegrityError
 
 if TYPE_CHECKING:
     from database.database_service import DatabaseService

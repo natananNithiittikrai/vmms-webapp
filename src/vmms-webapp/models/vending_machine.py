@@ -1,8 +1,7 @@
 """Vending Machine."""
 
-from sqlalchemy import INTEGER, VARCHAR, Column
-
 from models.base import Base
+from sqlalchemy import INTEGER, VARCHAR, Column
 
 
 class VendingMachine(Base):

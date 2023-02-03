@@ -1,8 +1,7 @@
 """Stock."""
 
-from sqlalchemy import INTEGER, Column, ForeignKey
-
 from models.base import Base
+from sqlalchemy import INTEGER, Column, ForeignKey
 
 
 class Stock(Base):

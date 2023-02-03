@@ -67,7 +67,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.poetry-cache.outputs.cache-hit != 'true'
-        run: poetry install
+        run: poetry install --no-root
 
       - name: Test with Pytest
         run: |
@@ -123,7 +123,7 @@ jobs:
 
   sonarqube:
     # runs after test-and-coverage job
-    needs: test-and-coverage
+    # needs: test-and-coverage
     runs-on: ubuntu-20.04
 
     steps:

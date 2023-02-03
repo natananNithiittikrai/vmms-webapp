@@ -1,8 +1,7 @@
 """Product."""
 
-from sqlalchemy import DECIMAL, INTEGER, VARCHAR, Column
-
 from models.base import Base
+from sqlalchemy import DECIMAL, INTEGER, VARCHAR, Column
 
 
 class Product(Base):

@@ -10,10 +10,9 @@ functions:
     * create_app - returns a flask app
 """
 
-from flask import Flask, Response, jsonify, render_template, request
-
 from database import utils
 from database.database_service import DatabaseService
+from flask import Flask, Response, jsonify, render_template, request
 
 
 def create_app(database_service: DatabaseService) -> Flask:
