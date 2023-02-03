@@ -9,13 +9,14 @@ import os
 from typing import TYPE_CHECKING
 
 from flask import Request
-from models.product import Product
-from models.stock import Stock
-from models.vending_machine import VendingMachine
 from sqlalchemy.exc import IntegrityError
 
+from vmms_webapp.models.product import Product
+from vmms_webapp.models.stock import Stock
+from vmms_webapp.models.vending_machine import VendingMachine
+
 if TYPE_CHECKING:
-    from database.database_service import DatabaseService
+    from vmms_webapp.database.database_service import DatabaseService
 
 DATABASE_PATH = f"sqlite:///{str(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vending_machine.db'))}"
 

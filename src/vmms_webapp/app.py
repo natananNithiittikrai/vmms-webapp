@@ -10,9 +10,10 @@ functions:
     * create_app - returns a flask app
 """
 
-from database import utils
-from database.database_service import DatabaseService
 from flask import Flask, Response, jsonify, render_template, request
+
+from vmms_webapp.database import utils
+from vmms_webapp.database.database_service import DatabaseService
 
 
 def create_app(database_service: DatabaseService) -> Flask:

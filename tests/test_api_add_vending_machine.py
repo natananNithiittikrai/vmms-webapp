@@ -2,8 +2,8 @@
 
 import unittest
 
-from app import create_app
-from database.database_service import DatabaseService
+from vmms_webapp.app import create_app
+from vmms_webapp.database.database_service import DatabaseService
 
 
 class TestAPIAddVendingMachine(unittest.TestCase):

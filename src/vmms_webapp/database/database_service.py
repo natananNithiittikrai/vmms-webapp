@@ -4,10 +4,11 @@ This script allows the user to create and initialize database as well as
 interact with database.
 """
 
-from database import utils
-from models.base import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from vmms_webapp.database import utils
+from vmms_webapp.models.base import Base
 
 
 class DatabaseService:

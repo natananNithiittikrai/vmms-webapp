@@ -1,7 +1,8 @@
 """Product."""
 
-from models.base import Base
 from sqlalchemy import DECIMAL, INTEGER, VARCHAR, Column
+
+from vmms_webapp.models.base import Base
 
 
 class Product(Base):

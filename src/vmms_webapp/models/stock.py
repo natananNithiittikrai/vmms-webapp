@@ -1,7 +1,8 @@
 """Stock."""
 
-from models.base import Base
 from sqlalchemy import INTEGER, Column, ForeignKey
+
+from vmms_webapp.models.base import Base
 
 
 class Stock(Base):

@@ -10,6 +10,11 @@ packages = [{ include = "vmms_webapp" }]
 python = "^3.9"
 pytest = "^7.2.1"
 
+[tool.pytest.ini_options]
+pythonpath = [
+  ".", "src"
+]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
