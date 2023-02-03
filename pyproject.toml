@@ -9,6 +9,9 @@ packages = [{ include = "vmms_webapp" }]
 [tool.poetry.dependencies]
 python = "^3.9"
 pytest = "^7.2.1"
+pre-commit = "^3.0.1"
+Flask = "^2.2.2"
+SQLAlchemy = "^1.4.0"
 
 [tool.pytest.ini_options]
 pythonpath = [
