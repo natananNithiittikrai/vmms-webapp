@@ -1,3 +1,7 @@
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DrNattapoom_vmms-webapp&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DrNattapoom_vmms-webapp)
+
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=DrNattapoom_vmms-webapp&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=DrNattapoom_vmms-webapp)
+
 # Vending Machine Management System
 
 MUIC ICCS372 Software Engineering
