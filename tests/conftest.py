@@ -13,9 +13,5 @@ def database_service() -> DatabaseService:
 @pytest.fixture(scope="session")
 def client() -> FlaskClient:
     app = create_app(DatabaseService("sqlite://"))
-    app.config.update(
-        {
-            "TESTING": True,
-        }
-    )
+    app.config.update({"TESTING": True, "WTF_CSRF_ENABLED": False})
     return app.test_client()

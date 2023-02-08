@@ -12,6 +12,7 @@ functions:
 import http
 
 from flask import Flask, Response, jsonify, make_response, render_template, request
+from flask_wtf.csrf import CSRFProtect
 from sqlalchemy.exc import NoResultFound
 
 from vmms_webapp.database import utils
@@ -28,6 +29,9 @@ def create_app(database_service: DatabaseService) -> Flask:
         Flask: An app
     """
     app = Flask(__name__)
+
+    csrf = CSRFProtect()
+    csrf.init_app(app)
 
     # SECURITY WARNING:
     # make sure the secret key is complex and secret in production

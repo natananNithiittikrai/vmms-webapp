@@ -9,6 +9,7 @@ packages = [{ include = "vmms_webapp" }]
 [tool.poetry.dependencies]
 python = "^3.9"
 Flask = "^2.2.2"
+Flask-WTF = "^1.1.1"
 SQLAlchemy = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
