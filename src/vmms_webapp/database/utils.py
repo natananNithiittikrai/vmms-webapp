@@ -54,7 +54,7 @@ def get_vending_machines(database_service: DatabaseService) -> list[VendingMachi
     return session.query(VendingMachine).all()
 
 
-def get_product_choices(database_service: DatabaseService) -> list[Product]:
+def get_products(database_service: DatabaseService) -> list[Product]:
     """Get all products in products table.
 
     Args:
@@ -130,13 +130,13 @@ def get_product_choices_by_vm_id(
     Returns:
         list: A list of products that can be added to the vending machine vm_id
     """
-    all_product_choices = get_product_choices(database_service)
+    all_products = get_products(database_service)
     current_products = get_stocks_by_vm_id(database_service, vm_id).keys()
     current_products_ids = list(map(lambda product: product.id, current_products))
     return list(
         filter(
-            lambda product_choice: product_choice.id not in current_products_ids,
-            all_product_choices,
+            lambda product: product.id not in current_products_ids,
+            all_products,
         )
     )
 
