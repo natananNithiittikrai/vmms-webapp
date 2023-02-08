@@ -83,6 +83,41 @@ def get_vending_machine_by_id(
     return session.query(VendingMachine).filter(VendingMachine.id == vm_id).first()
 
 
+def get_product_by_id(database_service: DatabaseService, prod_id: int) -> Product:
+    """Get a product with the specified id of prod_id.
+
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+        prod_id (int): An id of the interested product
+
+    Returns:
+        Product: A product with the specified id of prod_id
+    """
+    session = database_service.get_session()()
+    return session.query(Product).filter(Product.id == prod_id).first()
+
+
+def get_stock_by_vm_id_and_prod_id(
+    database_service: DatabaseService, vm_id: int, prod_id: int
+) -> Stock:
+    """Get a product stock with the specified ids of vm_id and prod_id.
+
+    Args:
+        database_service (DatabaseService): The object used to interact with database
+        vm_id (int): An id of the interested vending machine
+        prod_id (int): An id of the interested product
+
+    Returns:
+        Stock: A vending machine with the specified ids of vm_id and prod_id.
+    """
+    session = database_service.get_session()()
+    return (
+        session.query(Stock)
+        .filter(Stock.vm_id == vm_id, Stock.prod_id == prod_id)
+        .first()
+    )
+
+
 def get_product_choices_by_vm_id(
     database_service: DatabaseService, vm_id: int
 ) -> list[Product]:

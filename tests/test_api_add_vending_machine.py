@@ -1,51 +1,54 @@
 """Test: Add Vending Machine API."""
 
-import unittest
+import pytest
+from flask.testing import FlaskClient
 
-from vmms_webapp.app import create_app
-from vmms_webapp.database.database_service import DatabaseService
+END_POINT = "/api/vending_machines/add"
 
 
-class TestAPIAddVendingMachine(unittest.TestCase):
-    """A class used to test adding vending machine API."""
+def test_add_vending_machine_status(client: FlaskClient):
+    response = client.post(
+        END_POINT,
+        data={
+            "name": "test_vm_001",
+            "location": "test_loc_001",
+        },
+    )
+    assert response.status_code == 200
 
-    def setUp(self) -> None:
-        self.database_service = DatabaseService("sqlite://")
-        self.app = create_app(self.database_service)
-        self.app.config.update(
-            {
-                "TESTING": True,
-            }
-        )
-        self.client = self.app.test_client()
 
-    def test_basic(self) -> None:
-        response = self.client.post(
-            "/api/vending_machines/add",
-            data={
-                "name": "test_vm_001",
-                "location": "test_loc_001",
-            },
-        )
-        assert response.status_code == 200
+@pytest.mark.parametrize(
+    "vending_machine",
+    [
+        {"id": 2, "name": "test_vm_002", "location": "test_loc_002"},
+        {"id": 3, "name": "test_vm_003", "location": "test_loc_003"},
+    ],
+)
+def test_add_vending_machine_response_success(
+    client: FlaskClient, vending_machine: dict
+):
+    response = client.post(END_POINT, data=vending_machine)
+    response_json = response.get_json()
+    response_data = response_json["data"]
+    assert response_data["post"] == vending_machine
+    assert response_json["status"] == "success"
+    assert (
+        response_json["message"]
+        == f"vending machine {vending_machine['id']} is successfully added"
+    )
 
-    def test_response_json(self) -> None:
-        response = self.client.post(
-            "/api/vending_machines/add",
-            data={
-                "name": "test_vm_001",
-                "location": "test_loc_001",
-            },
-        )
-        response_json = response.get_json()
-        response_data = response_json["data"]
-        keys = ["id", "name", "location"]
-        expected_values = [1, "test_vm_001", "test_loc_001"]
-        assert all(
-            [
-                response_data["post"][key] == expected_value
-                for key, expected_value in zip(keys, expected_values)
-            ]
-        )
-        assert response_json["status"] == "success"
-        assert response_json["message"] == "vending machine 1 is successfully added"
+
+@pytest.mark.parametrize(
+    "vending_machine",
+    [
+        {"name": "test_vm_004"},
+        {"location": "test_loc_005"},
+    ],
+)
+def test_add_vending_machine_response_fail(client: FlaskClient, vending_machine: dict):
+    response = client.post(END_POINT, data=vending_machine)
+    response_json = response.get_json()
+    response_data = response_json["data"]
+    assert response_data["post"] == {}
+    assert response_json["status"] == "error"
+    assert response_json["message"] == "unable to add new vending machine"

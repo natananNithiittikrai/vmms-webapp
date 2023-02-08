@@ -54,4 +54,4 @@ class VendingMachine(Base):
         Returns:
             dict: A dictionary representing the object
         """
-        return {"name": self.name, "location": self.location}
+        return {"id": self.id, "name": self.name, "location": self.location}
